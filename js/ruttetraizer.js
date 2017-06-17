@@ -76,6 +76,25 @@ $(document).ready( function() {
 
 	//init mouse listeners
 	$("#stage").mousemove( onMouseMove);
+	// $("#stage").tapmove( onTapMove);
+
+	$('#stage').bind('touchmove',function(e){
+      e.preventDefault();
+      var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+      var elm = $(this).offset();
+      var x = touch.pageX - elm.left;
+      var y = touch.pageY - elm.top;
+      if(x < $(this).width() && x > 0){
+          if(y < $(this).height() && y > 0){
+                  //CODE GOES HERE
+                  _mouseX = x;
+									_mouseY = y;
+          }
+      }
+});
+
+
+
 	$(window).mousewheel( onMouseWheel);
 	$(window).keydown(onKeyDown);
 	$(window).mousedown( function() {
@@ -192,6 +211,13 @@ function onMouseMove(event) {
 	if (_enableMouseMove) {
 		_mouseX = event.pageX - _stageCenterX;
 		_mouseY = event.pageY - _stageCenterY;
+	}
+}
+
+function onTapMove(event) {
+	if (_enableMouseMove) {
+		_mouseX = event.offset.x - _stageCenterX;
+		_mouseY = event.offset.y - _stageCenterY;
 	}
 }
 
