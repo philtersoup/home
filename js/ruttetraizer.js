@@ -2,10 +2,11 @@
  Original Source: Felix Turner 2011
  Adapted for non-commercial use: Sanjay Das 2017
 
- */
+ **/
 
 
 //VARS
+
 var _stage,
 _lineGroup,
 _lineHolder,
@@ -32,33 +33,13 @@ _enableMouseMove = false,
 _guiOptions  = {
 	stageSize:	 	1.,
 	scale:	 		0.3925,
-	scanStep: 		5,
+	scanStep: 		10,
 	lineThickness:	1.00025,
 	opacity: 		1.0,
 	depth: 			200,
 	autoRotate: 	false
 };
 
-
-
-// Init GUI
-/*
-DAT.GUI.autoPlace = false;
-var _gui = new DAT.GUI();
-document.getElementById('controls-container').appendChild( _gui.domElement );
-
-//_gui = new DAT.GUI();
-_gui.add(_guiOptions, 'stageSize',.2,1,.1).onChange(doLayout).name('Stage Size');
-_gui.add(_guiOptions, 'scale', 0.1, 10,0.1).listen().name('Scale');
-_gui.add(_guiOptions, 'scanStep', 1, 20,1).onChange( createLines ).name('Line Separation');
-_gui.add(_guiOptions, 'lineThickness', 0.1, 10,0.1).onChange( updateMaterial ).name('Line Thickness');
-_gui.add(_guiOptions, 'depth', 0, 300,1).onChange( createLines ).name('Max Line Depth');
-_gui.add(_guiOptions, 'opacity', 0, 1,0.1).onChange( updateMaterial ).name('Brightness');
-_gui.add(this, 'saveImage').name('Save Image');
-*/
-/**
- * Init page
- */
 $(document).ready( function() {
 
 	$(window).bind('resize', doLayout);
@@ -98,10 +79,13 @@ $(document).ready( function() {
 	$(window).mousewheel( onMouseWheel);
 	$(window).keydown(onKeyDown);
 	$(window).mousedown( function() {
+
 		_enableMouseMove = true;
+
 	});
 	$(window).mouseup( function() {
 		_enableMouseMove = false;
+		// createLines();
 	});
 
 	doLayout();
@@ -190,6 +174,7 @@ function createLines() {
 			var brightness = getBrightness(color);
 			var posn = new THREE.Vector3(x -_imageWidth/2,y - _imageHeight/2, -brightness * _guiOptions.depth + _guiOptions.depth/2);
 			geometry.vertices.push(new THREE.Vertex(posn));
+
 			geometry.colors.push(color);
 		}
 		//add a line
@@ -214,12 +199,7 @@ function onMouseMove(event) {
 	}
 }
 
-function onTapMove(event) {
-	if (_enableMouseMove) {
-		_mouseX = event.offset.x - _stageCenterX;
-		_mouseY = event.offset.y - _stageCenterY;
-	}
-}
+
 
 function onMouseWheel(e,delta) {
 	_guiOptions.scale += delta * 0.1;
@@ -243,6 +223,7 @@ function animate() {
 
 function render() {
 
+	//update the scale value to simulate displacement based on audio input
 	_lineHolder.scale = new THREE.Vector3(_guiOptions.scale,_guiOptions.scale, _guiOptions.scale);
 
 	var xrot = _mouseX/_stageWidth * Math.PI*2 + Math.PI;
