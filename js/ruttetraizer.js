@@ -248,7 +248,7 @@ function render() {
 	var xrot = _mouseX/_stageWidth * Math.PI*2 + Math.PI;
 	var yrot = _mouseY/_stageHeight* Math.PI*2 + Math.PI;
 
-	_guiOptions.scale+=0.0001;
+	_guiOptions.scale+=0.0005;
 
 	_lineHolder.rotation.x += (-yrot - _lineHolder.rotation.x) * 0.3;
 	_lineHolder.rotation.y += (xrot - _lineHolder.rotation.y) * 0.3;
