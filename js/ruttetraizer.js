@@ -47,9 +47,6 @@ $(document).ready( function() {
 
 	$(window).bind('resize', doLayout);
 
-	//init image drag and drop
-	loadSample();
-
 	// stop the user getting a text cursor
 	document.onselectstart = function() {
 		return false;
@@ -60,40 +57,30 @@ $(document).ready( function() {
 
 	//init mouse listeners
 	$("#stage").mousemove( onMouseMove);
-	// $("#stage").tapmove( onTapMove);
-
 	$('#stage').bind('touchmove',function(e){
-      e.preventDefault();
-      var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
-      var elm = $(this).offset();
-      var x = touch.pageX - elm.left;
-      var y = touch.pageY - elm.top;
-      if(x < $(this).width() && x > 0){
-          if(y < $(this).height() && y > 0){
-                  //CODE GOES HERE
-                  _mouseX = x;
-									_mouseY = y;
-          }
-      }
-});
-
-
+		e.preventDefault();
+		var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+		var elm = $(this).offset();
+		var x = touch.pageX - elm.left;
+		var y = touch.pageY - elm.top;
+		if(x < $(this).width() && x > 0){
+		if(y < $(this).height() && y > 0){
+		        //CODE GOES HERE
+		        _mouseX = x;
+						_mouseY = y;
+				}
+			}
+		});
 
 	$(window).mousewheel( onMouseWheel);
-	$(window).keydown(onKeyDown);
 	$(window).mousedown( function() {
-
 		_enableMouseMove = true;
 		_effectGlitch.goWild = true;
-
 	});
 	$(window).mouseup( function() {
 		_enableMouseMove = false;
-		// createLines();
 		_effectGlitch.goWild = false;
 	});
-
-	doLayout();
 
 	if (!Detector.webgl) {
 		$("#overlay").empty();
@@ -103,12 +90,11 @@ $(document).ready( function() {
 
 	} else {
 		initWebGL();
-
+		imageHandler();
 	}
-
 });
-function initWebGL() {
 
+function initWebGL() {
 	//init camera
 	_camera = new THREE.PerspectiveCamera(75, 16/9, 1, 5000);
 	// _camera.position.y = 1000;
@@ -125,66 +111,84 @@ function initWebGL() {
 	});
 
 	_lineHolder = new THREE.Object3D();
+	_lineHolder.visible = false;
 	_scene.add(_lineHolder);
 
-			 	var renderPass = new THREE.RenderPass(_scene, _camera);
-        _effectGlitch = new THREE.GlitchPass(64);
+ 	var renderPass = new THREE.RenderPass(_scene, _camera);
+  _effectGlitch = new THREE.GlitchPass(64);
 
 
-        _effectGlitch.renderToScreen = true;
-				// console.log(effectGlitch);
-				// renderPass.renderToScreen = true;
-			  _composer = new THREE.EffectComposer(_renderer);
-				_composer.setSize(window.innerWidth,window.innerHeight);
-        _composer.addPass(renderPass);
-        _composer.addPass(_effectGlitch);
+  _effectGlitch.renderToScreen = true;
+	// console.log(effectGlitch);
+	// renderPass.renderToScreen = true;
+  _composer = new THREE.EffectComposer(_renderer);
+	_composer.setSize(window.innerWidth,window.innerHeight);
+  _composer.addPass(renderPass);
+  _composer.addPass(_effectGlitch);
 
-	startAudio();
 	doLayout();
+	startAudio();
 	animate();
 }
 
 function startAudio(){
 
-//Create an AudioListener and add it to the camera
-var listener = new THREE.AudioListener();
-_camera.add( listener );
+	//Create an AudioListener and add it to the camera
+	var listener = new THREE.AudioListener();
+	_camera.add( listener );
 
-// create a global audio source
-var sound = new THREE.Audio( listener );
+	// create a global audio source
+	var sound = new THREE.Audio( listener );
 
-var audioLoader = new THREE.AudioLoader();
+	var audioLoader = new THREE.AudioLoader();
 
-//Load a sound and set it as the Audio object's buffer
-audioLoader.load( 'sounds/placeholdermuzak.mp3', function( buffer ) {
-	sound.setBuffer( buffer );
-	sound.setLoop(true);
-	sound.setVolume(0.95);
-	sound.play();
-});
+	var geometry = new THREE.CircleBufferGeometry( 700, 32 );
+	var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+	var circle = new THREE.Mesh( geometry, material );
+	geometry.setDrawRange( 0, 0 );
+	_scene.add( circle );
+
+	//Load a sound and set it as the Audio object's buffer
+	audioLoader.load( 'sounds/placeholdermuzak.mp3', function( buffer ) {
+		sound.setBuffer( buffer );
+		sound.setLoop(true);
+		sound.setVolume(0.95);
+		sound.play();
+		_scene.remove( circle );
+		_lineHolder.visible = true;
+	},
+	// Function called when download progresses
+	function ( xhr ) {
+		geometry.setDrawRange( 0, xhr.loaded/xhr.total * 100 );
+			// console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
+		// Function called when download errors
+	function ( xhr ) {
+		console.log( 'An error happened' );
+		}
+	);
+		// _scene.remove( circle );
 	_analyser = new THREE.AudioAnalyser( sound, 32 );
 }
 
-
-
-function onImageLoaded() {
-
+function imageHandler() {
 	// load image into canvas pixels
-	_imageWidth = _inputImage.width;
-	_imageHeight = _inputImage.height;
-	_canvas	= document.createElement('canvas');
-	_canvas.width = _imageWidth
-	_canvas.height = _imageHeight;
-	_context = _canvas.getContext('2d');
-	_context.drawImage(_inputImage, 0, 0);
-	_pixels	= _context.getImageData(0,0,_imageWidth,_imageHeight).data;
+	_inputImage = new Image();
+	_inputImage.src = ("img/philterSoup.jpg");
 
-	createLines();
+	_inputImage.onload = function() {
+		_imageWidth = _inputImage.width;
+		_imageHeight = _inputImage.height;
+		_canvas	= document.createElement('canvas');
+		_canvas.width = _imageWidth
+		_canvas.height = _imageHeight;
+		_context = _canvas.getContext('2d');
+		_context.drawImage(_inputImage, 0, 0);
+		_pixels	= _context.getImageData(0,0,_imageWidth,_imageHeight).data;
+		createLines();
+	};
 }
 
-/**
- * Create Lines from image
- */
 function createLines() {
 
 	$("#overlay").hide();
@@ -228,21 +232,12 @@ function createLines() {
 
 }
 
-function updateMaterial() {
-	if (_material) {
-		_material.opacity = _guiOptions.opacity;
-		_material.linewidth = _guiOptions.lineThickness;
-	}
-}
-
 function onMouseMove(event) {
 	if (_enableMouseMove) {
 		_mouseX = event.pageX - _stageCenterX;
 		_mouseY = event.pageY - _stageCenterY;
 	}
 }
-
-
 
 function onMouseWheel(e,delta) {
 
@@ -251,13 +246,6 @@ function onMouseWheel(e,delta) {
 	//limit
 	_guiOptions.scale = Math.max(_guiOptions.scale, .1);
 	_guiOptions.scale = Math.min(_guiOptions.scale, 10);
-}
-
-function onKeyDown(evt) {
-	//save on 'S' key
-	if (event.keyCode == '83') {
-		// saveImage();
-	}
 }
 
 function animate() {
@@ -339,8 +327,8 @@ function doLayout() {
 	_stageCenterY = window.innerHeight / 2;
 }
 
-// Returns a hexidecimal color for a given pixel in the pixel array.
 function getColor(x, y) {
+	// Returns a hexidecimal color for a given pixel in the pixel array.
 	var base = (Math.floor(y) * _imageWidth + Math.floor(x)) * 4;
 	var c = {
 		r: _pixels[base + 0],
@@ -351,16 +339,7 @@ function getColor(x, y) {
 	return (c.r << 16) + (c.g << 8) + c.b;
 };
 
-//return pixel brightness between 0 and 1 based on human perceptual bias
 function getBrightness(c) {
+	//return pixel brightness between 0 and 1 based on human perceptual bias
 	return ( 0.5 * c.r + 0.5 * c.g + 0.16 * c.b );
 };
-
-function loadSample() {
-	_inputImage = new Image();
-	_inputImage.src = ("img/philterSoup.jpg");
-
-	_inputImage.onload = function() {
-		onImageLoaded();
-	};
-}
