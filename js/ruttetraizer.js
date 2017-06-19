@@ -14,8 +14,10 @@ _stats,
 _camera,
 _scene,
 _renderer,
-_mouseX = 0,
-_mouseY = 0,
+_composer,
+_effectGlitch,
+_mouseX = 100,
+_mouseY = 1,
 _material,
 _gui,
 _inputImage,
@@ -38,7 +40,8 @@ _guiOptions  = {
 	opacity: 		1.0,
 	depth: 			200,
 	autoRotate: 	false
-};
+},
+_analyser;
 
 $(document).ready( function() {
 
@@ -81,11 +84,13 @@ $(document).ready( function() {
 	$(window).mousedown( function() {
 
 		_enableMouseMove = true;
+		_effectGlitch.goWild = true;
 
 	});
 	$(window).mouseup( function() {
 		_enableMouseMove = false;
 		// createLines();
+		_effectGlitch.goWild = false;
 	});
 
 	doLayout();
@@ -113,7 +118,7 @@ function initWebGL() {
 
 	//init renderer
 	_renderer = new THREE.WebGLRenderer({
-		antialias: true,
+		antialias: false,
 		clearAlpha: 1,
 		sortObjects: false,
 		sortElements: false
@@ -122,10 +127,42 @@ function initWebGL() {
 	_lineHolder = new THREE.Object3D();
 	_scene.add(_lineHolder);
 
+			 	var renderPass = new THREE.RenderPass(_scene, _camera);
+        _effectGlitch = new THREE.GlitchPass(64);
 
-	// startAudio();
+
+        _effectGlitch.renderToScreen = true;
+				// console.log(effectGlitch);
+				// renderPass.renderToScreen = true;
+			  _composer = new THREE.EffectComposer(_renderer);
+				_composer.setSize(window.innerWidth,window.innerHeight);
+        _composer.addPass(renderPass);
+        _composer.addPass(_effectGlitch);
+
+	startAudio();
 	doLayout();
 	animate();
+}
+
+function startAudio(){
+
+//Create an AudioListener and add it to the camera
+var listener = new THREE.AudioListener();
+_camera.add( listener );
+
+// create a global audio source
+var sound = new THREE.Audio( listener );
+
+var audioLoader = new THREE.AudioLoader();
+
+//Load a sound and set it as the Audio object's buffer
+audioLoader.load( 'sounds/placeholdermuzak.mp3', function( buffer ) {
+	sound.setBuffer( buffer );
+	sound.setLoop(true);
+	sound.setVolume(0.95);
+	sound.play();
+});
+	_analyser = new THREE.AudioAnalyser( sound, 32 );
 }
 
 
@@ -166,7 +203,8 @@ function createLines() {
 		linewidth: _guiOptions.lineThickness,
 		blending: THREE.AdditiveBlending,
 		depthTest: false,
-		vertexColors: true
+		vertexColors: true,
+		needsUpdate: true
 	} );
 
 	// go through the image pixels
@@ -231,23 +269,31 @@ function animate() {
 function render() {
 
 	//update the scale value to simulate displacement based on audio input
-	//  _lineHolder.scale = new THREE.Vector3(_guiOptions.scale,_guiOptions.scale, _guiOptions.scale);
 
+	var anal = _analyser.getFrequencyData();
 
-  _lineHolder.scale.x = _guiOptions.scale;
-  _lineHolder.scale.y = _guiOptions.scale;
-  _lineHolder.scale.z = _guiOptions.scale;
+	//console.log(anal);
 
-	var xrot = _mouseX/_stageWidth * Math.PI*2 ;
+  _lineHolder.scale.x = _guiOptions.scale ;
+  _lineHolder.scale.y = _guiOptions.scale ;
+  _lineHolder.scale.z = -(anal[3]-180)/10;
+
+	_effectGlitch.goWild = anal[3] > 210 ;
+	var xrot = anal[2]/100*_mouseX/_stageWidth * Math.PI*2 ;
 	var yrot = _mouseY/_stageHeight* Math.PI*2 + Math.PI;
-
+	// _camera.position.z = anal[1] * 2;
 
 
 	_lineHolder.rotation.x += (yrot - _lineHolder.rotation.x) * 0.3;
 	_lineHolder.rotation.y += (xrot - _lineHolder.rotation.y) * 0.3;
-	_guiOptions.scale += 0.001;
+	_guiOptions.scale += 0.0005;
 		// _lineHolder.rotation.y = 90 / Math.PI;
-	_renderer.render(_scene, _camera);
+		if(_material){
+	_material.color = new THREE.Color( anal[3]/100 || 0.01, anal[7]/100 || 0.1 , anal[12]/100 || 0.1 );
+	}
+	_composer.render();
+	// _renderer.render(_scene, _camera);
+
 }
 
 function doLayout() {
