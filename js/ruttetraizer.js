@@ -276,7 +276,7 @@ function render() {
 
   _lineHolder.scale.x = _guiOptions.scale ;
   _lineHolder.scale.y = _guiOptions.scale ;
-  _lineHolder.scale.z = -(anal[3]-180)/10;
+  _lineHolder.scale.z = -(anal[3]-180)/10 || 1;
 
 	_effectGlitch.goWild = anal[3] > 210 ;
 	var xrot = anal[2]/100*_mouseX/_stageWidth * Math.PI*2 ;
