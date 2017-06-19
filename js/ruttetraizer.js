@@ -32,9 +32,9 @@ _enableMouseMove = false,
 //VARS ACCESSIBLE BY GUI
 _guiOptions  = {
 	stageSize:	 	1.,
-	scale:	 		0.3925,
+	scale:	 		0.85,
 	scanStep: 		10,
-	lineThickness:	1.00025,
+	lineThickness:	1.000,
 	opacity: 		1.0,
 	depth: 			200,
 	autoRotate: 	false
@@ -105,8 +105,10 @@ $(document).ready( function() {
 function initWebGL() {
 
 	//init camera
-	_camera = new THREE.Camera(75, 16/9, 1, 3000);
-	_camera.position.z = -1000;
+	_camera = new THREE.PerspectiveCamera(75, 16/9, 1, 5000);
+	// _camera.position.y = 1000;
+	_camera.position.z = 2500;
+	// _camera.rotate = 180 * Math.PI / 180
 	_scene = new THREE.Scene();
 
 	//init renderer
@@ -118,14 +120,15 @@ function initWebGL() {
 	});
 
 	_lineHolder = new THREE.Object3D();
-	_scene.addObject(_lineHolder);
+	_scene.add(_lineHolder);
 
 
+	// startAudio();
 	doLayout();
-
-
 	animate();
 }
+
+
 
 function onImageLoaded() {
 
@@ -173,16 +176,18 @@ function createLines() {
 			var color = new THREE.Color(getColor(x, y));
 			var brightness = getBrightness(color);
 			var posn = new THREE.Vector3(x -_imageWidth/2,y - _imageHeight/2, -brightness * _guiOptions.depth + _guiOptions.depth/2);
-			geometry.vertices.push(new THREE.Vertex(posn));
+			geometry.vertices.push(posn);
 
 			geometry.colors.push(color);
 		}
 		//add a line
 		var line = new THREE.Line(geometry, _material );
-		_lineGroup.addChild(line);
+		_lineGroup.add(line);
 	}
 
-	_lineHolder.addChild(_lineGroup);
+	_lineHolder.add(_lineGroup);
+	_lineHolder.rotation.x =   Math.PI;
+
 }
 
 function updateMaterial() {
@@ -202,6 +207,8 @@ function onMouseMove(event) {
 
 
 function onMouseWheel(e,delta) {
+
+	// console.log(e,delta);
 	_guiOptions.scale += delta * 0.1;
 	//limit
 	_guiOptions.scale = Math.max(_guiOptions.scale, .1);
@@ -224,16 +231,22 @@ function animate() {
 function render() {
 
 	//update the scale value to simulate displacement based on audio input
-	_lineHolder.scale = new THREE.Vector3(_guiOptions.scale,_guiOptions.scale, _guiOptions.scale);
+	//  _lineHolder.scale = new THREE.Vector3(_guiOptions.scale,_guiOptions.scale, _guiOptions.scale);
 
-	var xrot = _mouseX/_stageWidth * Math.PI*2 + Math.PI;
+
+  _lineHolder.scale.x = _guiOptions.scale;
+  _lineHolder.scale.y = _guiOptions.scale;
+  _lineHolder.scale.z = _guiOptions.scale;
+
+	var xrot = _mouseX/_stageWidth * Math.PI*2 ;
 	var yrot = _mouseY/_stageHeight* Math.PI*2 + Math.PI;
 
-	_guiOptions.scale+=0.0005;
 
-	_lineHolder.rotation.x += (-yrot - _lineHolder.rotation.x) * 0.3;
+
+	_lineHolder.rotation.x += (yrot - _lineHolder.rotation.x) * 0.3;
 	_lineHolder.rotation.y += (xrot - _lineHolder.rotation.y) * 0.3;
-
+	_guiOptions.scale += 0.001;
+		// _lineHolder.rotation.y = 90 / Math.PI;
 	_renderer.render(_scene, _camera);
 }
 
