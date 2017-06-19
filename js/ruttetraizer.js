@@ -111,7 +111,7 @@ function initWebGL() {
 
 	//init renderer
 	_renderer = new THREE.WebGLRenderer({
-		antialias: false,
+		antialias: true,
 		clearAlpha: 1,
 		sortObjects: false,
 		sortElements: false
