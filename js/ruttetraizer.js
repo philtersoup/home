@@ -31,6 +31,7 @@ _stageWidth,
 _stageHeight,
 _enableMouseMove = false,
 
+
 //VARS ACCESSIBLE BY GUI
 _guiOptions  = {
 	stageSize:	 	1.,
@@ -41,6 +42,8 @@ _guiOptions  = {
 	depth: 			200,
 	autoRotate: 	false
 },
+_sound,
+_adCtx,
 _analyser;
 
 $(document).ready( function() {
@@ -135,10 +138,11 @@ function startAudio(){
 
 	//Create an AudioListener and add it to the camera
 	var listener = new THREE.AudioListener();
+	_adCtx = listener.context;
 	_camera.add( listener );
 
 	// create a global audio source
-	var sound = new THREE.Audio( listener );
+	_sound = new THREE.Audio( listener );
 
 	var audioLoader = new THREE.AudioLoader();
 
@@ -150,10 +154,11 @@ function startAudio(){
 
 	//Load a sound and set it as the Audio object's buffer
 	audioLoader.load( 'sounds/placeholdermuzak.mp3', function( buffer ) {
-		sound.setBuffer( buffer );
-		sound.setLoop(true);
-		sound.setVolume(0.95);
-		sound.play();
+		_sound.setBuffer( buffer );
+		_sound.setLoop(true);
+		_sound.setVolume(0.95);
+		_sound.canPlay = true;
+		_sound.play();
 		_scene.remove( circle );
 		_lineHolder.visible = true;
 	},
@@ -168,7 +173,7 @@ function startAudio(){
 		}
 	);
 		// _scene.remove( circle );
-	_analyser = new THREE.AudioAnalyser( sound, 32 );
+	_analyser = new THREE.AudioAnalyser( _sound, 32 );
 }
 
 function imageHandler() {
@@ -254,6 +259,19 @@ function animate() {
 	// _stats.update();
 }
 
+window.addEventListener('touchstart', function() {
+
+	// create empty buffer
+	var buffer = _adCtx.createBuffer(1, 1, 22050);
+	var source = _adCtx.createBufferSource();
+	source.buffer = buffer;
+
+	// connect to output (your speakers)
+	source.connect(_adCtx.destination);
+	source.start();
+
+
+}, false);
 function render() {
 
 	//update the scale value to simulate displacement based on audio input
