@@ -63,6 +63,7 @@ $(document).ready( function() {
 	$('#stage').bind('touchmove',function(e){
 		e.preventDefault();
 		var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+
 		var elm = $(this).offset();
 		var x = touch.pageX - elm.left;
 		var y = touch.pageY - elm.top;
@@ -71,6 +72,7 @@ $(document).ready( function() {
 		        //CODE GOES HERE
 		        _mouseX = x;
 						_mouseY = y;
+
 				}
 			}
 		});
@@ -101,7 +103,7 @@ function initWebGL() {
 	//init camera
 	_camera = new THREE.PerspectiveCamera(75, 16/9, 1, 5000);
 	// _camera.position.y = 1000;
-	_camera.position.z = 2500;
+	_camera.position.z = 3500;
 	// _camera.rotate = 180 * Math.PI / 180
 	_scene = new THREE.Scene();
 
@@ -284,7 +286,7 @@ function render() {
   _lineHolder.scale.y = _guiOptions.scale ;
   _lineHolder.scale.z = -(anal[3]-180)/10 || 1;
 
-	_effectGlitch.goWild = anal[3] > 210 ;
+	_effectGlitch.goWild = anal[3] > 230 ;
 	var xrot = anal[2]/100*_mouseX/_stageWidth * Math.PI*2 ;
 	var yrot = _mouseY/_stageHeight* Math.PI*2 + Math.PI;
 	// _camera.position.z = anal[1] * 2;
