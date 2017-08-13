@@ -16,7 +16,7 @@ _scene,
 _renderer,
 _composer,
 _effectGlitch,
-_mouseX = 100,
+_mouseX = 1,
 _mouseY = 1,
 _material,
 _gui,
@@ -301,7 +301,9 @@ function onMouseMove(event) {
 
 	var max = 300;
 	var mapMouseX = (_mouseX/window.innerWidth) * max;
-	var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.5, w)
+	var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
+
+	// console.log(mapMouseX,mapMouseY);
 
 	feedbackMesh.position.z = mapMouseX;
 	_camera.position.z = mapMouseY;
@@ -345,17 +347,17 @@ function render() {
 
   _lineHolder.scale.x = _guiOptions.scale ;
   _lineHolder.scale.y = _guiOptions.scale ;
-  _lineHolder.scale.z = -(anal[3]-180)/10 || 1;
+  _lineHolder.scale.z = -(anal[3]-180)/50 || 1;
 
 	_effectGlitch.goWild = anal[3] > 230 ;
-	var xrot = anal[2]/100*_mouseX/_stageWidth * Math.PI*2 ;
+	var xrot = _mouseX/_stageWidth * Math.PI*2  ;
 	var yrot = _mouseY/_stageHeight* Math.PI*2 + Math.PI;
 	// _camera.position.z = anal[1] * 2;
 
 
 	_lineHolder.rotation.x += (yrot - _lineHolder.rotation.x) * 0.3;
 	_lineHolder.rotation.y += (xrot - _lineHolder.rotation.y) * 0.3;
-	_guiOptions.scale += 0.0005;
+	// _guiOptions.scale += 0.0005;
 		// _lineHolder.rotation.y = 90 / Math.PI;
 		if(_material){
 	_material.color = new THREE.Color( anal[3]/100 || 0.01, anal[7]/100 || 0.1 , anal[12]/100 || 0.1 );
@@ -366,7 +368,7 @@ function render() {
 	baseShader.uniforms.tex.value = baseTex;
 	feedbackShader.uniforms.tex.value = tex1;
 
-	feedbackShader.uniforms.step_w.value = 0.75;
+	feedbackShader.uniforms.step_w.value = 0.9;
 	feedbackShader.uniforms.step_h.value = 0.9;
 
 	_renderer.render(_scene, _camera, tex2, false);
