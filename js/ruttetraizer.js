@@ -32,6 +32,8 @@ _stageHeight,
 _enableMouseMove = false,
 
 
+
+
 //VARS ACCESSIBLE BY GUI
 _guiOptions  = {
 	stageSize:	 	1.,
@@ -45,6 +47,14 @@ _guiOptions  = {
 _sound,
 _adCtx,
 _analyser;
+
+
+var buffer;
+var baseShader, feedbackShader;
+var baseTex, tex1, tex2, tempTex;
+var baseMesh, feedbackMesh;
+
+var w, h;
 
 $(document).ready( function() {
 
@@ -80,11 +90,11 @@ $(document).ready( function() {
 	$(window).mousewheel( onMouseWheel);
 	$(window).mousedown( function() {
 		_enableMouseMove = true;
-		_effectGlitch.goWild = true;
+		// _effectGlitch.goWild = true;
 	});
 	$(window).mouseup( function() {
 		_enableMouseMove = false;
-		_effectGlitch.goWild = false;
+		// _effectGlitch.goWild = false;
 	});
 
 	if (!Detector.webgl) {
@@ -100,12 +110,19 @@ $(document).ready( function() {
 });
 
 function initWebGL() {
+	w = window.innerWidth;
+	h = window.innerHeight;
 	//init camera
 	_camera = new THREE.PerspectiveCamera(75, 16/9, 1, 5000);
 	// _camera.position.y = 1000;
 	_camera.position.z = 3500;
 	// _camera.rotate = 180 * Math.PI / 180
 	_scene = new THREE.Scene();
+
+	buffer = new THREE.Scene();
+	tex1 = new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  tex2 = new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
+  tempTex = new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
 
 	//init renderer
 	_renderer = new THREE.WebGLRenderer({
@@ -114,6 +131,41 @@ function initWebGL() {
 		sortObjects: false,
 		sortElements: false
 	});
+
+	var geometry = new THREE.PlaneBufferGeometry(w, h);
+
+  baseTex = new THREE.ImageUtils.loadTexture('currentsCapture.png');
+
+  baseShader = new THREE.ShaderMaterial({
+    uniforms: {
+      tex: { type: 't', value: baseTex},
+    },
+    vertexShader: document.getElementById('vertexShader').textContent,
+    fragmentShader: document.getElementById('fragmentShader').textContent
+  });
+
+  baseMesh = new THREE.Mesh(geometry, baseShader);
+
+  buffer.add(_camera)
+  buffer.add(baseMesh);
+
+  feedbackShader = new THREE.ShaderMaterial({
+    uniforms: {
+      tex: { type: 't', value: tex1 },
+      step_w: { type: 'f', value: 1.0/w },
+      step_h: { type: 'f', value: 1.0/h }
+    },
+    vertexShader: document.getElementById('vertexShader').textContent,
+    fragmentShader: document.getElementById('sharpenShader').textContent,
+    side:THREE.DoubleSide,
+    depthTest:true
+  });
+  feedbackShader.uniforms.tex.value = tex1;
+
+  feedbackMesh = new THREE.Mesh(geometry, feedbackShader);
+
+  _scene.add(_camera)
+  _scene.add(feedbackMesh);
 
 	_lineHolder = new THREE.Object3D();
 	_lineHolder.visible = false;
@@ -125,7 +177,7 @@ function initWebGL() {
 
   _effectGlitch.renderToScreen = true;
 	// console.log(effectGlitch);
-	// renderPass.renderToScreen = true;
+	renderPass.renderToScreen = false;
   _composer = new THREE.EffectComposer(_renderer);
 	_composer.setSize(window.innerWidth,window.innerHeight);
   _composer.addPass(renderPass);
@@ -244,6 +296,15 @@ function onMouseMove(event) {
 		_mouseX = event.pageX - _stageCenterX;
 		_mouseY = event.pageY - _stageCenterY;
 	}
+	var mapMouseX = (_mouseX/w);
+	var mapMouseY = (_mouseY/h);
+
+	var max = 300;
+	var mapMouseX = (_mouseX/window.innerWidth) * max;
+	var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.5, w)
+
+	feedbackMesh.position.z = mapMouseX;
+	_camera.position.z = mapMouseY;
 }
 
 function onMouseWheel(e,delta) {
@@ -299,9 +360,23 @@ function render() {
 		if(_material){
 	_material.color = new THREE.Color( anal[3]/100 || 0.01, anal[7]/100 || 0.1 , anal[12]/100 || 0.1 );
 	}
-	_composer.render();
+
 	// _renderer.render(_scene, _camera);
 
+	baseShader.uniforms.tex.value = baseTex;
+	feedbackShader.uniforms.tex.value = tex1;
+
+	feedbackShader.uniforms.step_w.value = 0.75;
+	feedbackShader.uniforms.step_h.value = 0.9;
+
+	_renderer.render(_scene, _camera, tex2, false);
+
+	_renderer.render(_scene, _camera);
+	_composer.render();
+	//swap buffers
+	tempTex = tex2;
+	tex2 = tex1;
+	tex1 = tempTex;
 }
 
 function doLayout() {
@@ -363,3 +438,7 @@ function getBrightness(c) {
 	//return pixel brightness between 0 and 1 based on human perceptual bias
 	return ( 0.5 * c.r + 0.5 * c.g + 0.16 * c.b );
 };
+
+function map(value, low1, high1, low2, high2) {
+  return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+}
