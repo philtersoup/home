@@ -37,7 +37,7 @@ _enableMouseMove = false,
 //VARS ACCESSIBLE BY GUI
 _guiOptions  = {
 	stageSize:	 	1.,
-	scale:	 		0.85,
+	scale:	 		0.2025,
 	scanStep: 		10,
 	lineThickness:	1.000,
 	opacity: 		1.0,
@@ -82,6 +82,17 @@ $(document).ready( function() {
 		        //CODE GOES HERE
 		        _mouseX = x;
 						_mouseY = y;
+						var mapMouseX = (_mouseX/w);
+						var mapMouseY = (_mouseY/h);
+
+						var max = 300;
+						var mapMouseX = (_mouseX/window.innerWidth) * max;
+						var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
+
+						// console.log(mapMouseX,mapMouseY);
+
+						feedbackMesh.position.z = mapMouseX;
+						_camera.position.z = mapMouseY;
 
 				}
 			}
@@ -163,6 +174,7 @@ function initWebGL() {
   feedbackShader.uniforms.tex.value = tex1;
 
   feedbackMesh = new THREE.Mesh(geometry, feedbackShader);
+	// feedbackMesh.position.z = 6000;
 
   _scene.add(_camera)
   _scene.add(feedbackMesh);
@@ -299,14 +311,7 @@ function onMouseMove(event) {
 	var mapMouseX = (_mouseX/w);
 	var mapMouseY = (_mouseY/h);
 
-	var max = 300;
-	var mapMouseX = (_mouseX/window.innerWidth) * max;
-	var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
 
-	// console.log(mapMouseX,mapMouseY);
-
-	feedbackMesh.position.z = mapMouseX;
-	_camera.position.z = mapMouseY;
 }
 
 function onMouseWheel(e,delta) {
@@ -379,6 +384,15 @@ function render() {
 	tempTex = tex2;
 	tex2 = tex1;
 	tex1 = tempTex;
+
+	var max = 300;
+	var mapMouseX = (_mouseX/window.innerWidth) * max;
+	var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
+
+	// console.log(mapMouseX,mapMouseY);
+
+	feedbackMesh.position.z = mapMouseX;
+	_camera.position.z = mapMouseY;
 }
 
 function doLayout() {
