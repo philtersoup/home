@@ -145,7 +145,7 @@ function initWebGL() {
 
 	var geometry = new THREE.PlaneBufferGeometry(w, h);
 
-  baseTex = new THREE.ImageUtils.loadTexture('currentsCapture.png');
+  baseTex = new THREE.ImageUtils.loadTexture();
 
   baseShader = new THREE.ShaderMaterial({
     uniforms: {
@@ -310,6 +310,12 @@ function onMouseMove(event) {
 	}
 	var mapMouseX = (_mouseX/w);
 	var mapMouseY = (_mouseY/h);
+	var max = 300;
+	var mapMouseX = (_mouseX/window.innerWidth) * max;
+	var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
+	feedbackMesh.position.z = mapMouseX;
+	_camera.position.z = mapMouseY;
+
 
 
 }
@@ -385,14 +391,14 @@ function render() {
 	tex2 = tex1;
 	tex1 = tempTex;
 
-	var max = 300;
-	var mapMouseX = (_mouseX/window.innerWidth) * max;
-	var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
+	// var max = 300;
+	// var mapMouseX = (_mouseX/window.innerWidth) * max;
+	// var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
 
 	// console.log(mapMouseX,mapMouseY);
 
-	feedbackMesh.position.z = mapMouseX;
-	_camera.position.z = mapMouseY;
+	// feedbackMesh.position.z = mapMouseX;
+	// _camera.position.z = mapMouseY;
 }
 
 function doLayout() {
