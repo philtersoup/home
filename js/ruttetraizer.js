@@ -337,7 +337,7 @@ function onMouseWheel(e,delta) {
 }
 
 function buttonClicked(){
-	window.location = "https:philtersoup.github.io/philterSoup";
+	window.location = "https://philtersoup.github.io/philterSoup";
 }
 
 function animate() {
