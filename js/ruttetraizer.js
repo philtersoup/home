@@ -31,9 +31,6 @@ _stageWidth,
 _stageHeight,
 _enableMouseMove = false,
 
-
-
-
 //VARS ACCESSIBLE BY GUI
 _guiOptions  = {
 	stageSize:	 	1.,
@@ -44,9 +41,14 @@ _guiOptions  = {
 	depth: 			200,
 	autoRotate: 	false
 },
+//AUDIO VARS
 _sound,
 _adCtx,
-_analyser;
+_analyser,
+
+//HTML5
+_enterButton;
+
 
 
 var buffer;
@@ -61,12 +63,11 @@ $(document).ready( function() {
 	$(window).bind('resize', doLayout);
 
 	// stop the user getting a text cursor
-	document.onselectstart = function() {
-		return false;
-	};
+	// document.onselectstart = function() {
+	// 	return false;
+	// };
 
 	_stage = document.getElementById("stage");
-
 
 	//init mouse listeners
 	$("#stage").mousemove( onMouseMove);
@@ -121,6 +122,9 @@ $(document).ready( function() {
 });
 
 function initWebGL() {
+	var enterButton = document.getElementById( 'enterButtonId');
+
+
 	w = window.innerWidth;
 	h = window.innerHeight;
 	//init camera
@@ -142,6 +146,9 @@ function initWebGL() {
 		sortObjects: false,
 		sortElements: false
 	});
+
+	document.body.appendChild(_renderer.domElement);
+
 
 	var geometry = new THREE.PlaneBufferGeometry(w, h);
 
@@ -329,11 +336,16 @@ function onMouseWheel(e,delta) {
 	_guiOptions.scale = Math.min(_guiOptions.scale, 10);
 }
 
+function buttonClicked(){
+	window.location = "https:philtersoup.github.io/philterSoup";
+}
+
 function animate() {
 	requestAnimationFrame(animate);
 	render();
 	// _stats.update();
 }
+
 
 window.addEventListener('touchstart', function() {
 
@@ -379,8 +391,9 @@ function render() {
 	baseShader.uniforms.tex.value = baseTex;
 	feedbackShader.uniforms.tex.value = tex1;
 
+	feedbackShader.uniforms.step_h.value = (anal[1]-180)/25;
+	// console.log("HELLO");
 	feedbackShader.uniforms.step_w.value = 0.9;
-	feedbackShader.uniforms.step_h.value = 0.9;
 
 	_renderer.render(_scene, _camera, tex2, false);
 

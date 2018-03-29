@@ -6,10 +6,14 @@
 		<link href="css/style.css" rel="stylesheet" type="text/css">
 	</head>
 	<body>
+		 <button style="button" onclick="buttonClicked()">ENTER</button>
+
 		<div id="container">
 			<div id="stage">
 			</div>
 		</div>
+
+
 		<!-- <script src="js/Three.js"></script> -->
 
 		<!--//////////////////////
@@ -24,7 +28,7 @@
     void main() {
       vec4 c =  texture2D(tex, vUv);
 
-			
+
 			gl_FragColor = vec4(c.r, c.r, c.r, 1.0);
 
     }
@@ -37,7 +41,9 @@
 
   <script id="sharpenShader" type="x-shader/x-fragment">
 
-    varying vec2 vUv;
+		//Convolution sharpen shader : https://www.shadertoy.com/view/MtdXW4
+
+		varying vec2 vUv;
     uniform sampler2D tex;
 
     vec2 offset[9];
@@ -47,7 +53,7 @@
 
     vec3 rgb2hsv(vec3 c)
     {
-      vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+      vec4 K = vec4(0.07, -1.0 / 3.0, 1.4 / 3.0, -1.0);
       vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
       vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
 
@@ -58,7 +64,7 @@
 
     vec3 hsv2rgb(vec3 c)
     {
-      vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+      vec4 K = vec4(1.0, 1.6 / 3.0, 1.7 / 3.0, 3.0);
       vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
       return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
     }
@@ -68,7 +74,7 @@
       vec4 color = texture2D(tex, vUv);
       vec4 hsv = vec4(rgb2hsv(color.rgb), 1.0);
 
-      vec2 repos = (vec2(hsv.x, hsv.y) - vec2(0.5)) * vec2(0.01);
+      vec2 repos = (vec2(hsv.z, hsv.x) + vec2(-0.25,0.25)) * vec2(0.01,-step_w/50.);
 
       float kernel[9];
       vec4 sum = vec4(0.0);
@@ -76,23 +82,29 @@
       offset[0] = vec2(-step_w, -step_h);
       offset[1] = vec2(    0.0, -step_h);
       offset[2] = vec2( step_w, -step_h);
-      offset[3] = vec2(-step_w,     0.0);
+
+			offset[3] = vec2(-step_h,     0.0);
       offset[4] = vec2(    0.0,     0.0);
       offset[5] = vec2( step_w,     0.0);
-      offset[6] = vec2(-step_w,  step_h);
+
+			offset[6] = vec2(-step_w,  step_h);
       offset[7] = vec2(    0.0,  step_h);
       offset[8] = vec2( step_w,  step_h);
 
-      kernel[0] =   0.0; kernel[1] = -0.05; kernel[2] =   0.0;
-      kernel[3] = -0.05; kernel[4] =   1.2; kernel[5] = -0.05;
-      kernel[6] =   0.0; kernel[7] = -0.05; kernel[8] =   0.0;
+      // kernel[0] =   0.0; kernel[1] = -0.05; kernel[2] =   0.0;
+      // kernel[3] = -0.05; kernel[4] =   1.2; kernel[5] = -0.05;
+      // kernel[6] =   0.0; kernel[7] = -0.05; kernel[8] =   0.0;
+
+			kernel[0] = 0.0; kernel[1] = -.20; kernel[2] = 0.0;
+			kernel[3] = -1.0; kernel[4] = 1.32; kernel[5] = -0.03;
+			kernel[6] = 0.0; kernel[7] = -0.7; kernel[8] = 0.0;
 
       for (int i = 0; i < 9; i++) {
-        sum += texture2D(tex, vUv + offset[i] + repos) * kernel[i];
+        sum += texture2D(tex, vUv + offset[i]*step_w/10. + repos*2.) * kernel[i];
       }
 
       hsv = vec4(rgb2hsv(sum.rgb), 1.0);
-      hsv.x += (hsv.y - 0.5) * 0.01;
+      hsv.y += (hsv.x - 0.5) * 0.1;
 
       vec4 rgb = vec4(hsv2rgb(hsv.rgb), 1.0);
 
