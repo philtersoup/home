@@ -38,7 +38,7 @@ _guiOptions  = {
 	scanStep: 		10,
 	lineThickness:	1.000,
 	opacity: 		1.0,
-	depth: 			200,
+	depth: 			50,
 	autoRotate: 	false
 },
 //AUDIO VARS
@@ -57,6 +57,9 @@ var baseTex, tex1, tex2, tempTex;
 var baseMesh, feedbackMesh;
 
 var w, h;
+
+var canPlay = false;
+var enterButton = document.getElementById( 'enterButtonId');
 
 $(document).ready( function() {
 
@@ -81,7 +84,7 @@ $(document).ready( function() {
 		if(x < $(this).width() && x > 0){
 		if(y < $(this).height() && y > 0){
 		        //CODE GOES HERE
-		        _mouseX = x;
+		        		_mouseX = x;
 						_mouseY = y;
 						var mapMouseX = (_mouseX/w);
 						var mapMouseY = (_mouseY/h);
@@ -122,13 +125,11 @@ $(document).ready( function() {
 });
 
 function initWebGL() {
-	var enterButton = document.getElementById( 'enterButtonId');
-
-
+	
 	w = window.innerWidth;
 	h = window.innerHeight;
 	//init camera
-	_camera = new THREE.PerspectiveCamera(75, 16/9, 1, 5000);
+	_camera = new THREE.PerspectiveCamera(75, 9/16, 1, 15000);
 	// _camera.position.y = 1000;
 	_camera.position.z = 3500;
 	// _camera.rotate = 180 * Math.PI / 180
@@ -141,7 +142,7 @@ function initWebGL() {
 
 	//init renderer
 	_renderer = new THREE.WebGLRenderer({
-		antialias: false,
+		antialias: true,
 		clearAlpha: 1,
 		sortObjects: false,
 		sortElements: false
@@ -203,8 +204,9 @@ function initWebGL() {
   _composer.addPass(_effectGlitch);
 
 	doLayout();
-	startAudio();
-	animate();
+	
+	// startAudio();
+	// animate();
 }
 
 function startAudio(){
@@ -226,7 +228,7 @@ function startAudio(){
 	_scene.add( circle );
 
 	//Load a sound and set it as the Audio object's buffer
-	audioLoader.load( 'sounds/placeholdermuzak.mp3', function( buffer ) {
+	audioLoader.load( 'sounds/ykm.mp3', function( buffer ) {
 		_sound.setBuffer( buffer );
 		_sound.setLoop(true);
 		_sound.setVolume(0.95);
@@ -234,6 +236,7 @@ function startAudio(){
 		_sound.play();
 		_scene.remove( circle );
 		_lineHolder.visible = true;
+		canPlay = true;
 	},
 	// Function called when download progresses
 	function ( xhr ) {
@@ -252,7 +255,7 @@ function startAudio(){
 function imageHandler() {
 	// load image into canvas pixels
 	_inputImage = new Image();
-	_inputImage.src = ("img/philterSoup.jpg");
+	_inputImage.src = ("img/emersion.png");
 
 	_inputImage.onload = function() {
 		_imageWidth = _inputImage.width;
@@ -315,13 +318,16 @@ function onMouseMove(event) {
 		_mouseX = event.pageX - _stageCenterX;
 		_mouseY = event.pageY - _stageCenterY;
 	}
-	var mapMouseX = (_mouseX/w);
-	var mapMouseY = (_mouseY/h);
+	// var mapMouseX = (_mouseX/w);
+	// var mapMouseY = (_mouseY/h);
 	var max = 300;
 	var mapMouseX = (_mouseX/window.innerWidth) * max;
 	var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
 	feedbackMesh.position.z = mapMouseX;
 	_camera.position.z = mapMouseY;
+
+	// console.log(mapMouseX);
+	// console.log(mapMouseY);
 
 
 
@@ -337,7 +343,24 @@ function onMouseWheel(e,delta) {
 }
 
 function buttonClicked(){
-	window.location = "https://philtersoup.github.io/philterSoup";
+	
+	
+	if(canPlay != true){
+		startAudio();
+		animate();
+		var btn = document.getElementById( 'enterButtonId');
+		btn.value = "PRE-SAVE";
+		btn.innerHTML = "PRE-SAVE";
+		// console.log(btn);	
+	}else{
+		// window.location = "https://distrokid.com/hyperfollow/philtersoupxsat/philtersoup-x-sat-emersion-2";
+		window.open(
+			'https://distrokid.com/hyperfollow/philtersoupxsat/philtersoup-x-sat-emersion-2',
+			'_blank' // <- This is what makes it open in a new window.
+		  );
+	}
+	
+	
 }
 
 function animate() {
@@ -372,7 +395,7 @@ function render() {
   _lineHolder.scale.y = _guiOptions.scale ;
   _lineHolder.scale.z = -(anal[3]-180)/50 || 1;
 
-	_effectGlitch.goWild = anal[3] > 230 ;
+	_effectGlitch.goWild = anal[3] > 250 ;
 	var xrot = _mouseX/_stageWidth * Math.PI*2  ;
 	var yrot = _mouseY/_stageHeight* Math.PI*2 + Math.PI;
 	// _camera.position.z = anal[1] * 2;
@@ -391,9 +414,9 @@ function render() {
 	baseShader.uniforms.tex.value = baseTex;
 	feedbackShader.uniforms.tex.value = tex1;
 
-	feedbackShader.uniforms.step_h.value = (anal[1]-180)/25;
+	feedbackShader.uniforms.step_h.value = (anal[1]-180)/100;
 	// console.log("HELLO");
-	feedbackShader.uniforms.step_w.value = 0.9;
+	feedbackShader.uniforms.step_w.value = 0.5;
 
 	_renderer.render(_scene, _camera, tex2, false);
 
@@ -408,7 +431,7 @@ function render() {
 	// var mapMouseX = (_mouseX/window.innerWidth) * max;
 	// var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
 
-	// console.log(mapMouseX,mapMouseY);
+	console.log(feedbackMesh.position.z,_camera.position.z);
 
 	// feedbackMesh.position.z = mapMouseX;
 	// _camera.position.z = mapMouseY;
