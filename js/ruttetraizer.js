@@ -228,7 +228,7 @@ function startAudio(){
 	_scene.add( circle );
 
 	//Load a sound and set it as the Audio object's buffer
-	audioLoader.load( 'sounds/ykm.mp3', function( buffer ) {
+	audioLoader.load( 'sounds/ykmLoop.mp3', function( buffer ) {
 		_sound.setBuffer( buffer );
 		_sound.setLoop(true);
 		_sound.setVolume(0.95);
