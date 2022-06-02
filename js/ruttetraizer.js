@@ -255,7 +255,7 @@ function startAudio(){
 function imageHandler() {
 	// load image into canvas pixels
 	_inputImage = new Image();
-	_inputImage.src = ("img/emersion.png");
+	_inputImage.src = ("img/Emersion.png");
 
 	_inputImage.onload = function() {
 		_imageWidth = _inputImage.width;
