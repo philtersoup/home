@@ -38,7 +38,7 @@ _guiOptions  = {
 	scanStep: 		10,
 	lineThickness:	1.000,
 	opacity: 		1.0,
-	depth: 			50,
+	depth: 			150,
 	autoRotate: 	false
 },
 //AUDIO VARS
@@ -131,7 +131,7 @@ function initWebGL() {
 	//init camera
 	_camera = new THREE.PerspectiveCamera(75, 9/16, 1, 15000);
 	// _camera.position.y = 1000;
-	_camera.position.z = 3500;
+	_camera.position.z = 500;
 	// _camera.rotate = 180 * Math.PI / 180
 	_scene = new THREE.Scene();
 
@@ -202,6 +202,8 @@ function initWebGL() {
 	_composer.setSize(window.innerWidth,window.innerHeight);
   _composer.addPass(renderPass);
   _composer.addPass(_effectGlitch);
+
+  
 
 	doLayout();
 	
@@ -351,6 +353,9 @@ function buttonClicked(){
 		var btn = document.getElementById( 'enterButtonId');
 		btn.value = "PRE-SAVE";
 		btn.innerHTML = "PRE-SAVE";
+
+		btn.style.left= "25%";
+		btn.style.bottom = "5%";
 		// console.log(btn);	
 	}else{
 		// window.location = "https://distrokid.com/hyperfollow/philtersoupxsat/philtersoup-x-sat-emersion-2";
@@ -431,7 +436,7 @@ function render() {
 	// var mapMouseX = (_mouseX/window.innerWidth) * max;
 	// var mapMouseY = map(_mouseY, 0, window.innerHeight, w * 0.35, w);
 
-	console.log(feedbackMesh.position.z,_camera.position.z);
+	// console.log(feedbackMesh.position.z,_camera.position.z);
 
 	// feedbackMesh.position.z = mapMouseX;
 	// _camera.position.z = mapMouseY;

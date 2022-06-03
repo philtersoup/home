@@ -53,14 +53,15 @@ button {
 		color: white;
 		display: block;
     z-index: 99;
-    left: 80%;
-    bottom: 15%;
+    left: 15%;
+    bottom: 50%;
 		overflow: hidden;
     outline:none;
 		background-color: Transparent;
-		font-size: 32px;
+		font-size: 25px;
 		-webkit-transition-duration: 0.4s; /* Safari */
 	 transition-duration: 0.4s;
+	 
 }
 button:hover {
     background-color: #ffffff; /* Green */
