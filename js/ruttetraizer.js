@@ -230,7 +230,7 @@ function startAudio(){
 	_scene.add( circle );
 
 	//Load a sound and set it as the Audio object's buffer
-	audioLoader.load( 'sounds/ykmLoop.mp3', function( buffer ) {
+	audioLoader.load( 'sounds/stdloop.mp3', function( buffer ) {
 		_sound.setBuffer( buffer );
 		_sound.setLoop(true);
 		_sound.setVolume(0.95);
@@ -411,7 +411,7 @@ function render() {
 	// _guiOptions.scale += 0.0005;
 		// _lineHolder.rotation.y = 90 / Math.PI;
 		if(_material){
-	_material.color = new THREE.Color( anal[3]/100 || 0.01, anal[7]/100 || 0.1 , anal[12]/100 || 0.1 );
+	_material.color = new THREE.Color( anal[3]/127 || 0.01, anal[7]/127 || 0.1 , anal[12]/127 || 0.1 );
 	}
 
 	// _renderer.render(_scene, _camera);
@@ -421,7 +421,7 @@ function render() {
 
 	feedbackShader.uniforms.step_h.value = (anal[1]-180)/100;
 	// console.log("HELLO");
-	feedbackShader.uniforms.step_w.value = 0.5;
+	feedbackShader.uniforms.step_w.value = 0.75;
 
 	_renderer.render(_scene, _camera, tex2, false);
 

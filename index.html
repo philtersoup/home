@@ -77,7 +77,7 @@
       vec4 color = texture2D(tex, vUv);
       vec4 hsv = vec4(rgb2hsv(color.rgb), 1.0);
 
-      vec2 repos = (vec2(hsv.z, hsv.x) + vec2(-0.25,0.25)) * vec2(0.01,-step_w/50.);
+      vec2 repos = (vec2(hsv.y, hsv.z) + vec2(-0.25,0.25)) * vec2(0.01,-step_w/50.);
 
       float kernel[9];
       vec4 sum = vec4(0.0);
