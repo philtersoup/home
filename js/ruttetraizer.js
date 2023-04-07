@@ -360,7 +360,7 @@ function buttonClicked(){
 	}else{
 		// window.location = "https://distrokid.com/hyperfollow/philtersoupxsat/philtersoup-x-sat-emersion-2";
 		window.open(
-			'https://distrokid.com/hyperfollow/philtersoupxsat/philtersoup-x-sat-emersion-2',
+			'https://philtersoupxsat.bandcamp.com/album/emersion',
 			'_blank' // <- This is what makes it open in a new window.
 		  );
 	}
