@@ -351,8 +351,8 @@ function buttonClicked(){
 		startAudio();
 		animate();
 		var btn = document.getElementById( 'enterButtonId');
-		btn.value = "PRE-SAVE";
-		btn.innerHTML = "PRE-SAVE";
+		btn.value = "GO TO ALBUM";
+		btn.innerHTML = "GO TO ALBUM";
 
 		btn.style.left= "25%";
 		btn.style.bottom = "5%";
